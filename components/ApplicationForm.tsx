@@ -56,7 +56,7 @@ export default function ApplicationForm({ onSubmit }: ApplicationFormProps) {
 
   return (
     <form onSubmit={handleSubmit} className="bg-white rounded-xl border-2 border-yellow-400/40 p-8 mb-8">
-      <h2 className="text-3xl font-bold mb-6 text-gray-900 pb-4 border-b-2 border-yellow-400/40">Add New University Application</h2>
+      <h2 className="text-2xl font-bold mb-6 text-gray-900 pb-4 border-b-2 border-yellow-400/40">Add New University Application</h2>
       
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* University Name */}

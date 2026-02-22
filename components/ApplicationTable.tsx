@@ -17,6 +17,40 @@ export default function ApplicationTable({
   onDelete,
 }: ApplicationTableProps) {
   const [selectedApp, setSelectedApp] = useState<UniversityApplication | null>(null);
+  const [deleteConfirmApp, setDeleteConfirmApp] = useState<UniversityApplication | null>(null);
+  const [sortField, setSortField] = useState<'deadline' | 'semesterFee' | 'livingCost' | null>(null);
+  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
+
+  const handleSort = (field: 'deadline' | 'semesterFee' | 'livingCost') => {
+    if (sortField === field) {
+      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortField(field);
+      setSortDirection('asc');
+    }
+  };
+
+  const sortedApplications = [...applications].sort((a, b) => {
+    if (!sortField) return 0;
+
+    let aValue: number | Date;
+    let bValue: number | Date;
+
+    if (sortField === 'deadline') {
+      aValue = new Date(a.applicationEndDate || '');
+      bValue = new Date(b.applicationEndDate || '');
+    } else if (sortField === 'semesterFee') {
+      aValue = parseFloat(a.semesterFee || '0');
+      bValue = parseFloat(b.semesterFee || '0');
+    } else {
+      aValue = parseFloat(a.livingCost || '0');
+      bValue = parseFloat(b.livingCost || '0');
+    }
+
+    if (aValue < bValue) return sortDirection === 'asc' ? -1 : 1;
+    if (aValue > bValue) return sortDirection === 'asc' ? 1 : -1;
+    return 0;
+  });
 
   const formatDate = (dateString: string) => {
     if (!dateString) return '-';
@@ -48,6 +82,51 @@ export default function ApplicationTable({
 
   return (
     <div className="bg-white rounded-xl border-2 border-yellow-400/30 overflow-hidden">
+      {/* Sorting Controls */}
+      <div className="bg-gray-50 px-6 py-4 border-b flex items-center gap-4">
+        <span className="text-sm font-semibold text-gray-700">Sort by:</span>
+        <div className="flex gap-2">
+          <button
+            onClick={() => handleSort('deadline')}
+            className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all ${
+              sortField === 'deadline'
+                ? 'bg-red-600 text-white shadow-sm'
+                : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+            }`}
+          >
+            Deadline {sortField === 'deadline' && (sortDirection === 'asc' ? '↑' : '↓')}
+          </button>
+          <button
+            onClick={() => handleSort('semesterFee')}
+            className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all ${
+              sortField === 'semesterFee'
+                ? 'bg-red-600 text-white shadow-sm'
+                : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+            }`}
+          >
+            Semester Fee {sortField === 'semesterFee' && (sortDirection === 'asc' ? '↑' : '↓')}
+          </button>
+          <button
+            onClick={() => handleSort('livingCost')}
+            className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all ${
+              sortField === 'livingCost'
+                ? 'bg-red-600 text-white shadow-sm'
+                : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+            }`}
+          >
+            Living Cost {sortField === 'livingCost' && (sortDirection === 'asc' ? '↑' : '↓')}
+          </button>
+          {sortField && (
+            <button
+              onClick={() => setSortField(null)}
+              className="px-4 py-2 rounded-lg text-sm font-semibold bg-yellow-400 text-gray-900 hover:bg-yellow-500 transition-all"
+            >
+              Clear Sort
+            </button>
+          )}
+        </div>
+      </div>
+      
       <div className="overflow-x-auto">
         <table className="min-w-full divide-y divide-gray-200">
           <thead className="bg-red-600/90">
@@ -76,7 +155,7 @@ export default function ApplicationTable({
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
-            {applications.map((app) => (
+            {sortedApplications.map((app) => (
               <tr
                 key={app.id}
                 className={`transition duration-150 ${
@@ -155,11 +234,7 @@ export default function ApplicationTable({
                     View
                   </button>
                   <button
-                    onClick={() => {
-                      if (confirm('Are you sure you want to delete this application?')) {
-                        onDelete(app.id);
-                      }
-                    }}
+                    onClick={() => setDeleteConfirmApp(app)}
                     className="text-red-600 hover:text-red-900 font-semibold"
                   >
                     Delete
@@ -208,23 +283,28 @@ export default function ApplicationTable({
       {/* View Details Modal */}
       {selectedApp && (
         <div
-          className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
+          className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4"
           onClick={() => setSelectedApp(null)}
         >
           <div
-            className="bg-white rounded-xl border-4 border-yellow-400 max-w-3xl w-full max-h-[90vh] overflow-y-auto"
+            className="bg-white rounded-2xl border-4 border-red-600 max-w-3xl w-full max-h-[90vh] overflow-y-auto shadow-2xl"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Modal Header */}
-            <div className="bg-red-600 text-white p-6 rounded-t-lg">
-              <div className="flex justify-between items-start">
+            <div className="relative bg-linear-to-br from-red-600 to-red-700 text-white p-6 rounded-t-xl overflow-hidden">
+              <div className="absolute top-0 left-0 w-32 h-32 bg-white/10 rounded-full -ml-16 -mt-16"></div>
+              <div className="absolute bottom-0 right-0 w-24 h-24 bg-black/10 rounded-full -mr-12 -mb-12"></div>
+              <div className="relative flex justify-between items-start">
                 <div>
-                  <h2 className="text-3xl font-bold mb-2">{selectedApp.universityName}</h2>
-                  <p className="text-red-100 text-sm">via {selectedApp.applyThrough}</p>
+                  <h2 className="text-2xl font-bold mb-2">{selectedApp.universityName}</h2>
+                  <p className="text-red-100 text-sm flex items-center gap-2">
+                    <span>📍</span>
+                    <span>via {selectedApp.applyThrough}</span>
+                  </p>
                 </div>
                 <button
                   onClick={() => setSelectedApp(null)}
-                  className="text-white hover:bg-red-700 rounded-full w-10 h-10 flex items-center justify-center text-2xl font-bold transition"
+                  className="text-white hover:bg-white/20 rounded-full w-10 h-10 flex items-center justify-center text-2xl font-bold transition-all hover:rotate-90 duration-200"
                 >
                   ×
                 </button>
@@ -235,44 +315,59 @@ export default function ApplicationTable({
             <div className="p-6 space-y-6">
               {/* Main Info Grid */}
               <div className="grid grid-cols-2 gap-4">
-                <div className="bg-yellow-400/10 p-4 rounded-lg border border-yellow-400/30">
-                  <h3 className="text-xs font-semibold text-gray-500 uppercase mb-1">Subject</h3>
+                <div className="bg-linear-to-br from-yellow-50 to-yellow-100 p-4 rounded-xl border-2 border-yellow-400/50 shadow-sm">
+                  <h3 className="text-xs font-semibold text-gray-500 uppercase mb-1 flex items-center gap-1">
+                    <span>📚</span>
+                    <span>Subject</span>
+                  </h3>
                   <p className="text-lg font-semibold text-gray-900">{selectedApp.subject}</p>
                 </div>
-                <div className="bg-yellow-400/10 p-4 rounded-lg border border-yellow-400/30">
-                  <h3 className="text-xs font-semibold text-gray-500 uppercase mb-1">City</h3>
+                <div className="bg-linear-to-br from-yellow-50 to-yellow-100 p-4 rounded-xl border-2 border-yellow-400/50 shadow-sm">
+                  <h3 className="text-xs font-semibold text-gray-500 uppercase mb-1 flex items-center gap-1">
+                    <span>🏙️</span>
+                    <span>City</span>
+                  </h3>
                   <p className="text-lg font-semibold text-gray-900">{selectedApp.city}</p>
                 </div>
-                <div className="bg-red-600/10 p-4 rounded-lg border border-red-600/30">
-                  <h3 className="text-xs font-semibold text-gray-500 uppercase mb-1">Application Opens</h3>
+                <div className="bg-linear-to-br from-red-50 to-red-100 p-4 rounded-xl border-2 border-red-400/50 shadow-sm">
+                  <h3 className="text-xs font-semibold text-gray-500 uppercase mb-1 flex items-center gap-1">
+                    <span>🗓️</span>
+                    <span>Application Opens</span>
+                  </h3>
                   <p className="text-lg font-semibold text-gray-900">
                     {selectedApp.applicationStartDate ? formatDate(selectedApp.applicationStartDate) : 'Not specified'}
                   </p>
                 </div>
-                <div className="bg-red-600/10 p-4 rounded-lg border border-red-600/30">
-                  <h3 className="text-xs font-semibold text-gray-500 uppercase mb-1">Deadline</h3>
+                <div className="bg-linear-to-br from-red-50 to-red-100 p-4 rounded-xl border-2 border-red-400/50 shadow-sm">
+                  <h3 className="text-xs font-semibold text-gray-500 uppercase mb-1 flex items-center gap-1">
+                    <span>⏰</span>
+                    <span>Deadline</span>
+                  </h3>
                   <p className="text-lg font-semibold text-gray-900">{formatDate(selectedApp.applicationEndDate)}</p>
                 </div>
               </div>
 
               {/* Fees Section */}
               <div className="border-t pt-6">
-                <h3 className="text-lg font-bold text-gray-900 mb-4">💰 Fees & Costs</h3>
+                <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+                  <span className="text-2xl">💰</span>
+                  <span>Fees & Costs</span>
+                </h3>
                 <div className="grid grid-cols-3 gap-4">
                   {selectedApp.semesterFee && (
-                    <div className="bg-gray-50 p-4 rounded-lg">
+                    <div className="bg-linear-to-br from-gray-50 to-gray-100 p-4 rounded-xl border-2 border-gray-300 shadow-sm">
                       <p className="text-xs text-gray-500 mb-1">Semester Fee</p>
                       <p className="text-xl font-bold text-gray-900">€{selectedApp.semesterFee}</p>
                     </div>
                   )}
                   {selectedApp.livingCost && (
-                    <div className="bg-gray-50 p-4 rounded-lg">
+                    <div className="bg-linear-to-br from-gray-50 to-gray-100 p-4 rounded-xl border-2 border-gray-300 shadow-sm">
                       <p className="text-xs text-gray-500 mb-1">Living Cost</p>
                       <p className="text-xl font-bold text-gray-900">€{selectedApp.livingCost}/mo</p>
                     </div>
                   )}
                   {selectedApp.applicationFee && (
-                    <div className="bg-gray-50 p-4 rounded-lg">
+                    <div className="bg-linear-to-br from-gray-50 to-gray-100 p-4 rounded-xl border-2 border-gray-300 shadow-sm">
                       <p className="text-xs text-gray-500 mb-1">Application Fee</p>
                       <p className="text-xl font-bold text-gray-900">€{selectedApp.applicationFee}</p>
                     </div>
@@ -356,12 +451,76 @@ export default function ApplicationTable({
             </div>
 
             {/* Modal Footer */}
-            <div className="bg-gray-50 p-6 rounded-b-lg border-t">
+            <div className="bg-linear-to-b from-gray-50 to-gray-100 p-6 rounded-b-xl border-t-2 border-gray-200">
               <button
                 onClick={() => setSelectedApp(null)}
-                className="w-full px-6 py-3 bg-red-600 text-white font-semibold rounded-lg hover:bg-red-700 transition"
+                className="w-full px-6 py-3 bg-linear-to-br from-red-600 to-red-700 text-white font-bold rounded-xl hover:from-red-700 hover:to-red-800 transition-all duration-200 shadow-lg shadow-red-600/30 hover:shadow-xl hover:shadow-red-600/40"
               >
                 Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Confirmation Modal */}
+      {deleteConfirmApp && (
+        <div
+          className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+          onClick={() => setDeleteConfirmApp(null)}
+        >
+          <div
+            className="bg-white rounded-2xl border-4 border-red-600 max-w-md w-full shadow-2xl transform transition-all"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Modal Header */}
+            <div className="relative bg-linear-to-br from-red-600 to-red-700 text-white p-6 rounded-t-xl overflow-hidden">
+              <div className="absolute top-0 right-0 w-24 h-24 bg-white/10 rounded-full -mr-12 -mt-12"></div>
+              <div className="absolute bottom-0 left-0 w-16 h-16 bg-black/10 rounded-full -ml-8 -mb-8"></div>
+              <div className="relative flex items-center gap-3">
+                <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center">
+                  <span className="text-2xl">⚠️</span>
+                </div>
+                <h2 className="text-xl font-bold">Confirm Delete</h2>
+              </div>
+            </div>
+
+            {/* Modal Body */}
+            <div className="p-6">
+              <p className="text-lg text-gray-700 mb-4">
+                Are you sure you want to delete this university?
+              </p>
+              <div className="bg-linear-to-br from-yellow-50 to-amber-100 border-2 border-yellow-400 rounded-xl p-4 shadow-sm">
+                <p className="font-bold text-gray-900 text-lg flex items-center gap-2">
+                  <span>🎓</span>
+                  <span>{deleteConfirmApp.universityName}</span>
+                </p>
+                <p className="text-gray-600 text-sm ml-7">{deleteConfirmApp.subject} • {deleteConfirmApp.city}</p>
+              </div>
+              <div className="mt-4 bg-red-50 border-2 border-red-300 rounded-xl p-3">
+                <p className="text-sm text-red-700 font-semibold flex items-center gap-2">
+                  <span>⚠️</span>
+                  <span>This action cannot be undone.</span>
+                </p>
+              </div>
+            </div>
+
+            {/* Modal Footer */}
+            <div className="bg-linear-to-b from-gray-50 to-gray-100 p-6 rounded-b-xl border-t-2 border-gray-200 flex gap-3">
+              <button
+                onClick={() => setDeleteConfirmApp(null)}
+                className="flex-1 px-6 py-3 bg-white text-gray-700 font-semibold rounded-xl hover:bg-gray-100 transition-all duration-200 border-2 border-gray-300 shadow-sm hover:shadow-md"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => {
+                  onDelete(deleteConfirmApp.id);
+                  setDeleteConfirmApp(null);
+                }}
+                className="flex-1 px-6 py-3 bg-linear-to-br from-red-600 to-red-700 text-white font-bold rounded-xl hover:from-red-700 hover:to-red-800 transition-all duration-200 shadow-lg shadow-red-600/30 hover:shadow-xl hover:shadow-red-600/40"
+              >
+                Delete
               </button>
             </div>
           </div>

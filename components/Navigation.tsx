@@ -9,19 +9,7 @@ export default function Navigation() {
   const [appCount, setAppCount] = useState(0);
 
   useEffect(() => {
-    // Load application count from localStorage
-    const stored = localStorage.getItem('universityApplications');
-    if (stored) {
-      try {
-        const apps = JSON.parse(stored);
-        setAppCount(apps.length);
-      } catch (error) {
-        console.error('Error loading applications:', error);
-      }
-    }
-
-    // Listen for storage changes
-    const handleStorageChange = () => {
+    const updateCount = () => {
       const stored = localStorage.getItem('universityApplications');
       if (stored) {
         try {
@@ -30,57 +18,71 @@ export default function Navigation() {
         } catch (error) {
           console.error('Error loading applications:', error);
         }
+      } else {
+        setAppCount(0);
       }
     };
 
-    window.addEventListener('storage', handleStorageChange);
-    // Custom event for same-window updates
-    window.addEventListener('applicationsUpdated', handleStorageChange);
+    // Initial load - sync with localStorage
+    updateCount();
+
+    window.addEventListener('storage', updateCount);
+    window.addEventListener('applicationsUpdated', updateCount);
 
     return () => {
-      window.removeEventListener('storage', handleStorageChange);
-      window.removeEventListener('applicationsUpdated', handleStorageChange);
+      window.removeEventListener('storage', updateCount);
+      window.removeEventListener('applicationsUpdated', updateCount);
     };
   }, []);
 
   return (
-    <nav className="bg-white border-b-4 border-yellow-400 mb-8">
+    <nav className="bg-white mb-8 shadow-sm">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-16">
-          <div className="shrink-0">
-            <h1 className="text-2xl font-bold text-gray-900">
-              🎓 German Uni Tracker
-            </h1>
-          </div>
+        <div className="flex justify-between items-center h-20">
+          {/* Logo Section */}
+          <Link href="/" className="shrink-0 flex items-center gap-3 hover:opacity-80 transition">
+            <div className="w-12 h-12 bg-linear-to-br from-red-600 to-yellow-400 rounded-lg flex items-center justify-center text-2xl shadow-md">
+              🎓
+            </div>
+            <div>
+              <h1 className="text-2xl font-extrabold text-gray-900 leading-tight">
+                German Uni Tracker
+              </h1>
+              <p className="text-xs text-gray-500 font-medium">Plan your future in Germany</p>
+            </div>
+          </Link>
           
-          <div className="flex items-center space-x-8">
-            <div className="text-sm min-w-[180px]">
-              <span className="text-gray-600">Shortlisted:</span>
-              <span className="ml-2 font-bold text-2xl text-red-600 inline-block min-w-[40px] text-center">{appCount}</span>
-            </div>
+          {/* Right Section: Counter + Links */}
+          <div className="flex items-center gap-3">
+            {pathname === '/results' && (
+              <div className="flex items-center gap-3 bg-linear-to-r from-yellow-50 to-red-50 px-5 py-2.5 rounded-lg shadow-sm">
+                <span className="text-sm font-semibold text-gray-600 uppercase tracking-wide">Shortlisted:</span>
+                <span className="font-bold text-sm text-red-600">{appCount}</span>
+              </div>
+            )}
             
-            <div className="flex space-x-6">
-              <Link
-                href="/"
-                className={`text-lg font-semibold transition duration-200 hover:text-red-600 pb-1 ${
-                  pathname === '/'
-                    ? 'text-red-600 border-b-2 border-red-600'
-                    : 'text-gray-700'
-                }`}
-              >
-                Add University
-              </Link>
-              <Link
-                href="/results"
-                className={`text-lg font-semibold transition duration-200 hover:text-red-600 pb-1 ${
-                  pathname === '/results'
-                    ? 'text-red-600 border-b-2 border-red-600'
-                    : 'text-gray-700'
-                }`}
-              >
-                View Shortlist
-              </Link>
-            </div>
+            <Link
+              href="/"
+              className={`px-5 py-2.5 rounded-lg font-semibold text-sm transition-all duration-200 flex items-center gap-2 ${
+                pathname === '/'
+                  ? 'bg-red-600 text-white shadow-md shadow-red-600/30'
+                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200 hover:shadow-sm'
+              }`}
+            >
+              <span>➕</span>
+              <span>Add University</span>
+            </Link>
+            <Link
+              href="/results"
+              className={`px-5 py-2.5 rounded-lg font-semibold text-sm transition-all duration-200 flex items-center gap-2 ${
+                pathname === '/results'
+                  ? 'bg-red-600 text-white shadow-md shadow-red-600/30'
+                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200 hover:shadow-sm'
+              }`}
+            >
+              <span>📋</span>
+              <span>View Shortlist</span>
+            </Link>
           </div>
         </div>
       </div>

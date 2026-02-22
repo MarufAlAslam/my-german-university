@@ -2,17 +2,20 @@
 
 import { useState, useEffect } from 'react';
 import ApplicationTable from '@/components/ApplicationTable';
+import Breadcrumbs from '@/components/Breadcrumbs';
 import { UniversityApplication, ApplicationStatus } from '@/types/application';
 
 export default function ResultsPage() {
   const [applications, setApplications] = useState<UniversityApplication[]>([]);
   const [isLoaded, setIsLoaded] = useState(false);
+  const [importData, setImportData] = useState<{ count: number; newCount: number; duplicateCount: number; data: UniversityApplication[] } | null>(null);
 
   // Load applications from localStorage on mount
   useEffect(() => {
     const stored = localStorage.getItem('universityApplications');
     if (stored) {
       try {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         setApplications(JSON.parse(stored));
       } catch (error) {
         console.error('Error loading applications:', error);
@@ -48,6 +51,18 @@ export default function ResultsPage() {
 
   const handleDeleteApplication = (id: string) => {
     setApplications((prev) => prev.filter((app) => app.id !== id));
+  };
+
+  // Check if an application is a duplicate based on university name, subject, and deadline
+  const isDuplicate = (newApp: UniversityApplication, existingApps: UniversityApplication[]) => {
+    if (!Array.isArray(existingApps)) {
+      return false;
+    }
+    return existingApps.some(existing => 
+      existing.universityName?.toLowerCase().trim() === newApp.universityName?.toLowerCase().trim() &&
+      existing.subject?.toLowerCase().trim() === newApp.subject?.toLowerCase().trim() &&
+      existing.applicationEndDate === newApp.applicationEndDate
+    );
   };
 
   const handleExportCSV = () => {
@@ -159,11 +174,22 @@ export default function ResultsPage() {
         });
 
         if (imported.length > 0) {
-          const confirmMsg = `Import ${imported.length} universities? This will add to your current list.`;
-          if (confirm(confirmMsg)) {
-            setApplications(prev => [...imported, ...prev]);
-            alert(`Successfully imported ${imported.length} universities!`);
+          // Filter out duplicates
+          const newApplications = imported.filter(app => !isDuplicate(app, applications));
+          const duplicateCount = imported.length - newApplications.length;
+          
+          if (newApplications.length === 0) {
+            alert('All entries in the CSV file already exist in your list. No new data to import.');
+          } else {
+            setImportData({ 
+              count: imported.length, 
+              newCount: newApplications.length, 
+              duplicateCount,
+              data: newApplications 
+            });
           }
+        } else {
+          alert('No valid data found in CSV file.');
         }
       } catch (error) {
         console.error('Import error:', error);
@@ -202,25 +228,47 @@ export default function ResultsPage() {
       <div className="absolute bottom-80 left-80 w-26 h-26 bg-yellow-400/6 rounded-full pointer-events-none"></div>
       
       <div className="max-w-7xl mx-auto relative z-10">
-        <div className="text-center mb-12 bg-yellow-400/10 rounded-xl p-8 border-2 border-yellow-400/40">
-          <h1 className="text-5xl font-extrabold text-gray-900 mb-4">
+        <Breadcrumbs 
+          items={[
+            { label: 'Add University', href: '/', icon: '🏠' },
+            { label: 'Shortlist', href: '/results', icon: '📋', active: true }
+          ]} 
+        />
+        
+        <div className="relative text-center mb-12 bg-linear-to-br from-red-50 via-white to-yellow-50 rounded-2xl p-10 border-2 border-red-600 shadow-xl overflow-hidden">
+          {/* Decorative corner accents */}
+          <div className="absolute top-0 right-0 w-20 h-20 bg-linear-to-bl from-black/10 to-transparent rounded-bl-full"></div>
+          <div className="absolute bottom-0 left-0 w-24 h-24 bg-linear-to-tr from-yellow-400/15 to-transparent rounded-tr-full"></div>
+          <div className="absolute top-0 left-0 w-16 h-16 bg-linear-to-br from-red-600/20 to-transparent rounded-br-full"></div>
+          
+          {/* Icon decoration */}
+          <div className="inline-flex items-center justify-center w-16 h-16 bg-linear-to-br from-yellow-400 to-yellow-500 rounded-full mb-4 shadow-lg shadow-yellow-400/30">
+            <span className="text-3xl">📋</span>
+          </div>
+          
+          <h1 className="text-3xl font-extrabold bg-linear-to-r from-gray-900 via-yellow-700 to-gray-900 bg-clip-text text-transparent mb-3">
             Shortlisted Universities
           </h1>
-          <p className="text-xl text-gray-700">
-            Universities you're considering and tracking application status
+          <p className="text-base text-gray-700 font-medium max-w-2xl mx-auto">
+            Universities you&apos;re considering and tracking application status
           </p>
+          
+          {/* Bottom accent line */}
+          <div className="mt-6 w-32 h-1 bg-linear-to-r from-yellow-400 via-red-600 to-black mx-auto rounded-full"></div>
         </div>
 
         {/* Export/Import Buttons */}
-        <div className="mb-6 flex justify-end gap-4">
+        <div className="mb-8 flex justify-end gap-4">
           <button
             onClick={handleExportCSV}
-            className="px-6 py-3 bg-yellow-400 text-gray-900 font-semibold rounded-lg hover:bg-yellow-500 transition duration-200 border-2 border-yellow-600"
+            className="group px-6 py-3.5 bg-linear-to-br from-yellow-400 to-yellow-500 text-gray-900 font-bold rounded-xl hover:from-yellow-500 hover:to-yellow-600 transition-all duration-200 border-2 border-yellow-600 shadow-lg shadow-yellow-400/30 hover:shadow-xl hover:shadow-yellow-400/40 hover:-translate-y-0.5 flex items-center gap-2"
           >
-            📥 Export to CSV
+            <span className="text-xl group-hover:scale-110 transition-transform duration-200">📥</span>
+            <span>Export to CSV</span>
           </button>
-          <label className="px-6 py-3 bg-red-600 text-white font-semibold rounded-lg hover:bg-red-700 transition duration-200 cursor-pointer border-2 border-red-800">
-            📤 Import from CSV
+          <label className="group px-6 py-3.5 bg-linear-to-br from-red-600 to-red-700 text-white font-bold rounded-xl hover:from-red-700 hover:to-red-800 transition-all duration-200 cursor-pointer border-2 border-red-800 shadow-lg shadow-red-600/30 hover:shadow-xl hover:shadow-red-600/40 hover:-translate-y-0.5 flex items-center gap-2">
+            <span className="text-xl group-hover:scale-110 transition-transform duration-200">📤</span>
+            <span>Import from CSV</span>
             <input
               type="file"
               accept=".csv"
@@ -237,6 +285,98 @@ export default function ResultsPage() {
           onDelete={handleDeleteApplication}
         />
       </div>
+
+      {/* Import Confirmation Modal */}
+      {importData && (
+        <div
+          className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+          onClick={() => setImportData(null)}
+        >
+          <div
+            className="bg-white rounded-2xl border-4 border-yellow-400 max-w-md w-full shadow-2xl transform transition-all"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Modal Header */}
+            <div className="relative bg-linear-to-br from-yellow-400 to-yellow-500 text-gray-900 p-6 rounded-t-xl overflow-hidden">
+              <div className="absolute top-0 right-0 w-24 h-24 bg-white/10 rounded-full -mr-12 -mt-12"></div>
+              <div className="absolute bottom-0 left-0 w-16 h-16 bg-black/5 rounded-full -ml-8 -mb-8"></div>
+              <div className="relative flex items-center gap-3">
+                <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center shadow-lg">
+                  <span className="text-2xl">📤</span>
+                </div>
+                <h2 className="text-xl font-bold">Import Universities</h2>
+              </div>
+            </div>
+
+            {/* Modal Body */}
+            <div className="p-6">
+              <p className="text-lg text-gray-700 mb-4">
+                Found <span className="font-bold text-gray-900">{importData.count}</span> {importData.count === 1 ? 'entry' : 'entries'} in the CSV file.
+              </p>
+              
+              <div className="space-y-3 mb-4">
+                <div className="flex items-center justify-between bg-linear-to-br from-green-50 to-green-100 border-2 border-green-400 rounded-xl p-3 shadow-sm">
+                  <span className="text-gray-800 font-semibold flex items-center gap-2">
+                    <span className="text-xl">✅</span>
+                    <span>New entries to import:</span>
+                  </span>
+                  <span className="font-bold text-green-700 text-xl px-3 py-1 bg-white rounded-lg">{importData.newCount}</span>
+                </div>
+                
+                {importData.duplicateCount > 0 && (
+                  <div className="flex items-center justify-between bg-linear-to-br from-red-50 to-red-100 border-2 border-red-400 rounded-xl p-3 shadow-sm">
+                    <span className="text-gray-800 font-semibold flex items-center gap-2">
+                      <span className="text-xl">🚫</span>
+                      <span>Duplicates (skipped):</span>
+                    </span>
+                    <span className="font-bold text-red-700 text-xl px-3 py-1 bg-white rounded-lg">{importData.duplicateCount}</span>
+                  </div>
+                )}
+              </div>
+              
+              <div className="bg-linear-to-br from-yellow-50 to-amber-50 border-2 border-yellow-400 rounded-xl p-4 shadow-sm">
+                <p className="font-bold text-gray-900 mb-2 flex items-center gap-2">
+                  <span className="text-lg">ℹ️</span>
+                  <span>Note:</span>
+                </p>
+                <ul className="text-sm text-gray-700 space-y-1.5 ml-6">
+                  <li className="flex items-start gap-2">
+                    <span className="text-yellow-600 mt-0.5">▸</span>
+                    <span>Only new universities will be added</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-yellow-600 mt-0.5">▸</span>
+                    <span>Duplicates are detected by university name, subject, and deadline</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-yellow-600 mt-0.5">▸</span>
+                    <span>Your existing data will not be modified</span>
+                  </li>
+                </ul>
+              </div>
+            </div>
+
+            {/* Modal Footer */}
+            <div className="bg-linear-to-b from-gray-50 to-gray-100 p-6 rounded-b-xl border-t-2 border-gray-200 flex gap-3">
+              <button
+                onClick={() => setImportData(null)}
+                className="flex-1 px-6 py-3 bg-white text-gray-700 font-semibold rounded-xl hover:bg-gray-100 transition-all duration-200 border-2 border-gray-300 shadow-sm hover:shadow-md"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => {
+                  setApplications(prev => [...importData.data, ...prev]);
+                  setImportData(null);
+                }}
+                className="flex-1 px-6 py-3 bg-linear-to-br from-yellow-400 to-yellow-500 text-gray-900 font-bold rounded-xl hover:from-yellow-500 hover:to-yellow-600 transition-all duration-200 border-2 border-yellow-600 shadow-lg shadow-yellow-400/30 hover:shadow-xl hover:shadow-yellow-400/40"
+              >
+                Import {importData.newCount} {importData.newCount === 1 ? 'Entry' : 'Entries'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </main>
   );
 }
