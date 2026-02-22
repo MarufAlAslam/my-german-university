@@ -291,7 +291,7 @@ export default function ApplicationTable({
             onClick={(e) => e.stopPropagation()}
           >
             {/* Modal Header */}
-            <div className="relative bg-linear-to-br from-red-600 to-red-700 text-white p-6 rounded-t-xl overflow-hidden">
+            <div className="relative bg-linear-to-br from-red-600 to-red-700 text-white p-5 rounded-t-xl overflow-hidden">
               <div className="absolute top-0 left-0 w-32 h-32 bg-white/10 rounded-full -ml-16 -mt-16"></div>
               <div className="absolute bottom-0 right-0 w-24 h-24 bg-black/10 rounded-full -mr-12 -mb-12"></div>
               <div className="relative flex justify-between items-start">
@@ -474,12 +474,12 @@ export default function ApplicationTable({
             onClick={(e) => e.stopPropagation()}
           >
             {/* Modal Header */}
-            <div className="relative bg-linear-to-br from-red-600 to-red-700 text-white p-6 rounded-t-xl overflow-hidden">
+            <div className="relative bg-linear-to-br from-red-600 to-red-700 text-white p-5 rounded-t-xl overflow-hidden">
               <div className="absolute top-0 right-0 w-24 h-24 bg-white/10 rounded-full -mr-12 -mt-12"></div>
               <div className="absolute bottom-0 left-0 w-16 h-16 bg-black/10 rounded-full -ml-8 -mb-8"></div>
               <div className="relative flex items-center gap-3">
-                <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center">
-                  <span className="text-2xl">⚠️</span>
+                <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">
+                  <span className="text-xl">⚠️</span>
                 </div>
                 <h2 className="text-xl font-bold">Confirm Delete</h2>
               </div>

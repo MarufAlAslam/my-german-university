@@ -80,15 +80,15 @@ export default function Home() {
           ]} 
         />
         
-        <div className="relative text-center mb-12 bg-linear-to-br from-yellow-50 via-white to-red-50 rounded-2xl p-10 border-2 border-yellow-400 shadow-xl overflow-hidden">
+        <div className="relative text-center mb-12 bg-linear-to-br from-yellow-50 via-white to-red-50 rounded-2xl p-8 border-2 border-yellow-400 shadow-xl overflow-hidden">
           {/* Decorative corner accents */}
           <div className="absolute top-0 left-0 w-20 h-20 bg-linear-to-br from-black/10 to-transparent rounded-br-full"></div>
           <div className="absolute bottom-0 right-0 w-24 h-24 bg-linear-to-tl from-red-600/10 to-transparent rounded-tl-full"></div>
           <div className="absolute top-0 right-0 w-16 h-16 bg-linear-to-bl from-yellow-400/20 to-transparent rounded-bl-full"></div>
           
           {/* Icon decoration */}
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-linear-to-br from-red-600 to-red-700 rounded-full mb-4 shadow-lg shadow-red-600/30">
-            <span className="text-3xl">🎓</span>
+          <div className="inline-flex items-center justify-center w-14 h-14 bg-linear-to-br from-red-600 to-red-700 rounded-full mb-3 shadow-lg shadow-red-600/30">
+            <span className="text-2xl">🎓</span>
           </div>
           
           <h1 className="text-3xl font-extrabold bg-linear-to-r from-gray-900 via-red-800 to-gray-900 bg-clip-text text-transparent mb-3">
@@ -99,7 +99,7 @@ export default function Home() {
           </p>
           
           {/* Bottom accent line */}
-          <div className="mt-6 w-32 h-1 bg-linear-to-r from-black via-red-600 to-yellow-400 mx-auto rounded-full"></div>
+          <div className="mt-4 w-24 h-1 bg-linear-to-r from-black via-red-600 to-yellow-400 mx-auto rounded-full"></div>
         </div>
 
         <ApplicationForm onSubmit={handleAddApplication} />

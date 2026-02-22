@@ -235,15 +235,15 @@ export default function ResultsPage() {
           ]} 
         />
         
-        <div className="relative text-center mb-12 bg-linear-to-br from-red-50 via-white to-yellow-50 rounded-2xl p-10 border-2 border-red-600 shadow-xl overflow-hidden">
+        <div className="relative text-center mb-12 bg-linear-to-br from-red-50 via-white to-yellow-50 rounded-2xl p-8 border-2 border-red-600 shadow-xl overflow-hidden">
           {/* Decorative corner accents */}
           <div className="absolute top-0 right-0 w-20 h-20 bg-linear-to-bl from-black/10 to-transparent rounded-bl-full"></div>
           <div className="absolute bottom-0 left-0 w-24 h-24 bg-linear-to-tr from-yellow-400/15 to-transparent rounded-tr-full"></div>
           <div className="absolute top-0 left-0 w-16 h-16 bg-linear-to-br from-red-600/20 to-transparent rounded-br-full"></div>
           
           {/* Icon decoration */}
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-linear-to-br from-yellow-400 to-yellow-500 rounded-full mb-4 shadow-lg shadow-yellow-400/30">
-            <span className="text-3xl">📋</span>
+          <div className="inline-flex items-center justify-center w-14 h-14 bg-linear-to-br from-yellow-400 to-yellow-500 rounded-full mb-3 shadow-lg shadow-yellow-400/30">
+            <span className="text-2xl">📋</span>
           </div>
           
           <h1 className="text-3xl font-extrabold bg-linear-to-r from-gray-900 via-yellow-700 to-gray-900 bg-clip-text text-transparent mb-3">
@@ -254,7 +254,7 @@ export default function ResultsPage() {
           </p>
           
           {/* Bottom accent line */}
-          <div className="mt-6 w-32 h-1 bg-linear-to-r from-yellow-400 via-red-600 to-black mx-auto rounded-full"></div>
+          <div className="mt-4 w-24 h-1 bg-linear-to-r from-yellow-400 via-red-600 to-black mx-auto rounded-full"></div>
         </div>
 
         {/* Export/Import Buttons */}
@@ -297,12 +297,12 @@ export default function ResultsPage() {
             onClick={(e) => e.stopPropagation()}
           >
             {/* Modal Header */}
-            <div className="relative bg-linear-to-br from-yellow-400 to-yellow-500 text-gray-900 p-6 rounded-t-xl overflow-hidden">
+            <div className="relative bg-linear-to-br from-yellow-400 to-yellow-500 text-gray-900 p-5 rounded-t-xl overflow-hidden">
               <div className="absolute top-0 right-0 w-24 h-24 bg-white/10 rounded-full -mr-12 -mt-12"></div>
               <div className="absolute bottom-0 left-0 w-16 h-16 bg-black/5 rounded-full -ml-8 -mb-8"></div>
               <div className="relative flex items-center gap-3">
-                <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center shadow-lg">
-                  <span className="text-2xl">📤</span>
+                <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-lg">
+                  <span className="text-xl">📤</span>
                 </div>
                 <h2 className="text-xl font-bold">Import Universities</h2>
               </div>
