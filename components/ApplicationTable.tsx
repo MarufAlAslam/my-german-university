@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import { UniversityApplication, ApplicationStatus } from '@/types/application';
 
 interface ApplicationTableProps {
@@ -15,6 +16,8 @@ export default function ApplicationTable({
   onUpdateStatus,
   onDelete,
 }: ApplicationTableProps) {
+  const [selectedApp, setSelectedApp] = useState<UniversityApplication | null>(null);
+
   const formatDate = (dateString: string) => {
     if (!dateString) return '-';
     const date = new Date(dateString);
@@ -146,23 +149,7 @@ export default function ApplicationTable({
                 {/* Actions */}
                 <td className="px-6 py-4 whitespace-nowrap text-sm">
                   <button
-                    onClick={() => {
-                      const details = `
-University: ${app.universityName}
-Subject: ${app.subject}
-City: ${app.city}
-Apply Through: ${app.applyThrough}
-Deadline: ${formatDate(app.applicationEndDate)}
-${app.applicationStartDate ? `Opens: ${formatDate(app.applicationStartDate)}` : ''}
-${app.semesterFee ? `Semester Fee: €${app.semesterFee}` : ''}
-${app.livingCost ? `Living Cost: €${app.livingCost}/month` : ''}
-${app.applicationFee ? `Application Fee: €${app.applicationFee}` : ''}
-${app.ieltsScore ? `IELTS Required: ${app.ieltsScore}` : ''}
-${app.documentsRequired ? `\nDocuments Required:\n${app.documentsRequired}` : ''}
-${app.usefulLinks ? `\nUseful Links:\n${extractLinks(app.usefulLinks).join('\n')}` : ''}
-                      `.trim();
-                      alert(details);
-                    }}
+                    onClick={() => setSelectedApp(app)}
                     className="text-blue-600 hover:text-blue-900 font-semibold mr-3"
                   >
                     View
@@ -217,6 +204,169 @@ ${app.usefulLinks ? `\nUseful Links:\n${extractLinks(app.usefulLinks).join('\n')
           </div>
         </div>
       </div>
+
+      {/* View Details Modal */}
+      {selectedApp && (
+        <div
+          className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
+          onClick={() => setSelectedApp(null)}
+        >
+          <div
+            className="bg-white rounded-xl border-4 border-yellow-400 max-w-3xl w-full max-h-[90vh] overflow-y-auto"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Modal Header */}
+            <div className="bg-red-600 text-white p-6 rounded-t-lg">
+              <div className="flex justify-between items-start">
+                <div>
+                  <h2 className="text-3xl font-bold mb-2">{selectedApp.universityName}</h2>
+                  <p className="text-red-100 text-sm">via {selectedApp.applyThrough}</p>
+                </div>
+                <button
+                  onClick={() => setSelectedApp(null)}
+                  className="text-white hover:bg-red-700 rounded-full w-10 h-10 flex items-center justify-center text-2xl font-bold transition"
+                >
+                  ×
+                </button>
+              </div>
+            </div>
+
+            {/* Modal Body */}
+            <div className="p-6 space-y-6">
+              {/* Main Info Grid */}
+              <div className="grid grid-cols-2 gap-4">
+                <div className="bg-yellow-400/10 p-4 rounded-lg border border-yellow-400/30">
+                  <h3 className="text-xs font-semibold text-gray-500 uppercase mb-1">Subject</h3>
+                  <p className="text-lg font-semibold text-gray-900">{selectedApp.subject}</p>
+                </div>
+                <div className="bg-yellow-400/10 p-4 rounded-lg border border-yellow-400/30">
+                  <h3 className="text-xs font-semibold text-gray-500 uppercase mb-1">City</h3>
+                  <p className="text-lg font-semibold text-gray-900">{selectedApp.city}</p>
+                </div>
+                <div className="bg-red-600/10 p-4 rounded-lg border border-red-600/30">
+                  <h3 className="text-xs font-semibold text-gray-500 uppercase mb-1">Application Opens</h3>
+                  <p className="text-lg font-semibold text-gray-900">
+                    {selectedApp.applicationStartDate ? formatDate(selectedApp.applicationStartDate) : 'Not specified'}
+                  </p>
+                </div>
+                <div className="bg-red-600/10 p-4 rounded-lg border border-red-600/30">
+                  <h3 className="text-xs font-semibold text-gray-500 uppercase mb-1">Deadline</h3>
+                  <p className="text-lg font-semibold text-gray-900">{formatDate(selectedApp.applicationEndDate)}</p>
+                </div>
+              </div>
+
+              {/* Fees Section */}
+              <div className="border-t pt-6">
+                <h3 className="text-lg font-bold text-gray-900 mb-4">💰 Fees & Costs</h3>
+                <div className="grid grid-cols-3 gap-4">
+                  {selectedApp.semesterFee && (
+                    <div className="bg-gray-50 p-4 rounded-lg">
+                      <p className="text-xs text-gray-500 mb-1">Semester Fee</p>
+                      <p className="text-xl font-bold text-gray-900">€{selectedApp.semesterFee}</p>
+                    </div>
+                  )}
+                  {selectedApp.livingCost && (
+                    <div className="bg-gray-50 p-4 rounded-lg">
+                      <p className="text-xs text-gray-500 mb-1">Living Cost</p>
+                      <p className="text-xl font-bold text-gray-900">€{selectedApp.livingCost}/mo</p>
+                    </div>
+                  )}
+                  {selectedApp.applicationFee && (
+                    <div className="bg-gray-50 p-4 rounded-lg">
+                      <p className="text-xs text-gray-500 mb-1">Application Fee</p>
+                      <p className="text-xl font-bold text-gray-900">€{selectedApp.applicationFee}</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* IELTS Requirement */}
+              {selectedApp.ieltsScore && (
+                <div className="border-t pt-6">
+                  <h3 className="text-lg font-bold text-gray-900 mb-2">📝 IELTS Requirement</h3>
+                  <p className="text-gray-700 bg-blue-50 p-4 rounded-lg border border-blue-200">
+                    {selectedApp.ieltsScore}
+                  </p>
+                </div>
+              )}
+
+              {/* Required Documents */}
+              {selectedApp.documentsRequired && (
+                <div className="border-t pt-6">
+                  <h3 className="text-lg font-bold text-gray-900 mb-2">📄 Required Documents</h3>
+                  <div className="bg-gray-50 p-4 rounded-lg whitespace-pre-wrap text-gray-700">
+                    {selectedApp.documentsRequired}
+                  </div>
+                </div>
+              )}
+
+              {/* Useful Links */}
+              {selectedApp.usefulLinks && (
+                <div className="border-t pt-6">
+                  <h3 className="text-lg font-bold text-gray-900 mb-3">🔗 Useful Links</h3>
+                  <div className="space-y-2">
+                    {extractLinks(selectedApp.usefulLinks).map((link, index) => (
+                      <a
+                        key={index}
+                        href={link.startsWith('http') ? link : `https://${link}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="block text-blue-600 hover:text-blue-800 hover:underline break-all bg-blue-50 p-3 rounded-lg border border-blue-200"
+                      >
+                        {link}
+                      </a>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Application Status */}
+              <div className="border-t pt-6">
+                <div className="flex items-center justify-between bg-gray-50 p-4 rounded-lg">
+                  <div>
+                    <h3 className="text-lg font-bold text-gray-900">Application Status</h3>
+                    <p className="text-sm text-gray-600">
+                      Added on {formatDate(selectedApp.createdAt)}
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-4">
+                    <span className={`px-4 py-2 rounded-lg font-semibold ${
+                      selectedApp.applied ? 'bg-yellow-400 text-gray-900' : 'bg-gray-300 text-gray-700'
+                    }`}>
+                      {selectedApp.applied ? '✓ Applied' : 'Not Applied'}
+                    </span>
+                    {selectedApp.applied && selectedApp.status && (
+                      <span className={`px-4 py-2 rounded-lg font-semibold ${
+                        selectedApp.status === 'accepted'
+                          ? 'bg-green-100 text-green-800 border-2 border-green-300'
+                          : selectedApp.status === 'rejected'
+                          ? 'bg-red-100 text-red-800 border-2 border-red-300'
+                          : selectedApp.status === 'processing'
+                          ? 'bg-blue-100 text-blue-800 border-2 border-blue-300'
+                          : ''
+                      }`}>
+                        {selectedApp.status === 'accepted' ? '✓ Accepted' : 
+                         selectedApp.status === 'rejected' ? '✗ Rejected' : 
+                         selectedApp.status === 'processing' ? '⏳ Processing' : ''}
+                      </span>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Modal Footer */}
+            <div className="bg-gray-50 p-6 rounded-b-lg border-t">
+              <button
+                onClick={() => setSelectedApp(null)}
+                className="w-full px-6 py-3 bg-red-600 text-white font-semibold rounded-lg hover:bg-red-700 transition"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

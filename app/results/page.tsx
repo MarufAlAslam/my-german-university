@@ -50,6 +50,132 @@ export default function ResultsPage() {
     setApplications((prev) => prev.filter((app) => app.id !== id));
   };
 
+  const handleExportCSV = () => {
+    if (applications.length === 0) {
+      alert('No data to export!');
+      return;
+    }
+
+    // CSV headers
+    const headers = [
+      'University Name',
+      'Semester Fee',
+      'City',
+      'Apply Through',
+      'Application Start Date',
+      'Application End Date',
+      'Subject',
+      'Living Cost',
+      'Required Documents',
+      'IELTS Requirement',
+      'Application Fee',
+      'Applied',
+      'Status',
+      'Useful Links',
+      'Created At'
+    ];
+
+    // Convert applications to CSV rows
+    const rows = applications.map(app => [
+      app.universityName || '',
+      app.semesterFee || '',
+      app.city || '',
+      app.applyThrough || '',
+      app.applicationStartDate || '',
+      app.applicationEndDate || '',
+      app.subject || '',
+      app.livingCost || '',
+      (app.documentsRequired || '').replace(/,/g, ';'), // Replace commas with semicolons
+      app.ieltsScore || '',
+      app.applicationFee || '',
+      app.applied ? 'Yes' : 'No',
+      app.status || '',
+      (app.usefulLinks || '').replace(/,/g, ';'), // Replace commas with semicolons
+      app.createdAt || ''
+    ]);
+
+    // Combine headers and rows
+    const csvContent = [
+      headers.join(','),
+      ...rows.map(row => row.map(cell => `"${cell || ''}"`).join(','))
+    ].join('\n');
+
+    // Create and download file
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    link.setAttribute('href', url);
+    link.setAttribute('download', `university-shortlist-${new Date().toISOString().split('T')[0]}.csv`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  const handleImportCSV = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      try {
+        const text = e.target?.result as string;
+        const lines = text.split('\n').filter(line => line.trim());
+        
+        if (lines.length < 2) {
+          alert('Invalid CSV file!');
+          return;
+        }
+
+        // Skip header row
+        const dataLines = lines.slice(1);
+        const imported: UniversityApplication[] = [];
+
+        dataLines.forEach(line => {
+          // Parse CSV line (handling quoted values)
+          const matches = line.match(/(".*?"|[^,]+)(?=\s*,|\s*$)/g);
+          if (!matches || matches.length < 15) return;
+
+          const values = matches.map(val => val.replace(/^"(.*)"$/, '$1').trim());
+
+          imported.push({
+            id: Date.now().toString() + Math.random().toString(36).substr(2, 9),
+            universityName: values[0] || '',
+            semesterFee: values[1] || '',
+            city: values[2] || '',
+            applyThrough: values[3] || '',
+            applicationStartDate: values[4] || '',
+            applicationEndDate: values[5] || '',
+            subject: values[6] || '',
+            livingCost: values[7] || '',
+            documentsRequired: (values[8] || '').replace(/;/g, ','),
+            ieltsScore: values[9] || '',
+            applicationFee: values[10] || '',
+            applied: values[11]?.toLowerCase() === 'yes',
+            status: (values[12] || '') as ApplicationStatus,
+            usefulLinks: (values[13] || '').replace(/;/g, ','),
+            createdAt: values[14] || new Date().toISOString()
+          });
+        });
+
+        if (imported.length > 0) {
+          const confirmMsg = `Import ${imported.length} universities? This will add to your current list.`;
+          if (confirm(confirmMsg)) {
+            setApplications(prev => [...imported, ...prev]);
+            alert(`Successfully imported ${imported.length} universities!`);
+          }
+        }
+      } catch (error) {
+        console.error('Import error:', error);
+        alert('Error importing CSV file. Please check the format.');
+      }
+    };
+    reader.readAsText(file);
+    
+    // Reset input so same file can be imported again
+    event.target.value = '';
+  };
+
   if (!isLoaded) {
     return (
       <div className="min-h-[calc(100vh-200px)] flex items-center justify-center">
@@ -83,6 +209,25 @@ export default function ResultsPage() {
           <p className="text-xl text-gray-700">
             Universities you're considering and tracking application status
           </p>
+        </div>
+
+        {/* Export/Import Buttons */}
+        <div className="mb-6 flex justify-end gap-4">
+          <button
+            onClick={handleExportCSV}
+            className="px-6 py-3 bg-yellow-400 text-gray-900 font-semibold rounded-lg hover:bg-yellow-500 transition duration-200 border-2 border-yellow-600"
+          >
+            📥 Export to CSV
+          </button>
+          <label className="px-6 py-3 bg-red-600 text-white font-semibold rounded-lg hover:bg-red-700 transition duration-200 cursor-pointer border-2 border-red-800">
+            📤 Import from CSV
+            <input
+              type="file"
+              accept=".csv"
+              onChange={handleImportCSV}
+              className="hidden"
+            />
+          </label>
         </div>
 
         <ApplicationTable
