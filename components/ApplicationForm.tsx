@@ -55,13 +55,13 @@ export default function ApplicationForm({ onSubmit }: ApplicationFormProps) {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="bg-white rounded-xl border-2 border-yellow-400/40 p-8 mb-8">
-      <h2 className="text-2xl font-bold mb-6 text-gray-900 pb-4 border-b-2 border-yellow-400/40">Add New University Application</h2>
+    <form onSubmit={handleSubmit} className="bg-white rounded-xl border-2 border-yellow-400/40 p-4 sm:p-6 md:p-8 mb-8">
+      <h2 className="text-xl sm:text-2xl font-bold mb-4 sm:mb-6 text-gray-900 pb-3 sm:pb-4 border-b-2 border-yellow-400/40">Add New University Application</h2>
       
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
         {/* University Name */}
         <div className="md:col-span-2">
-          <label className="block text-sm font-semibold text-gray-700 mb-2">
+          <label className="block text-xs sm:text-sm font-semibold text-gray-700 mb-2">
             University Name *
           </label>
           <input
@@ -70,14 +70,14 @@ export default function ApplicationForm({ onSubmit }: ApplicationFormProps) {
             value={formData.universityName}
             onChange={handleChange}
             required
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="w-full px-3 sm:px-4 py-2 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             placeholder="e.g., Technical University of Munich"
           />
         </div>
 
         {/* Subject */}
         <div className="md:col-span-2">
-          <label className="block text-sm font-semibold text-gray-700 mb-2">
+          <label className="block text-xs sm:text-sm font-semibold text-gray-700 mb-2">
             Subject/Program *
           </label>
           <input
@@ -86,14 +86,14 @@ export default function ApplicationForm({ onSubmit }: ApplicationFormProps) {
             value={formData.subject}
             onChange={handleChange}
             required
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="w-full px-3 sm:px-4 py-2 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             placeholder="e.g., Computer Science"
           />
         </div>
 
         {/* City */}
         <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-2">
+          <label className="block text-xs sm:text-sm font-semibold text-gray-700 mb-2">
             City/Location *
           </label>
           <input
@@ -102,14 +102,14 @@ export default function ApplicationForm({ onSubmit }: ApplicationFormProps) {
             value={formData.city}
             onChange={handleChange}
             required
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="w-full px-3 sm:px-4 py-2 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             placeholder="e.g., Munich"
           />
         </div>
 
         {/* Apply Through */}
         <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-2">
+          <label className="block text-xs sm:text-sm font-semibold text-gray-700 mb-2">
             Apply Through *
           </label>
           <input
@@ -118,14 +118,14 @@ export default function ApplicationForm({ onSubmit }: ApplicationFormProps) {
             value={formData.applyThrough}
             onChange={handleChange}
             required
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="w-full px-3 sm:px-4 py-2 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             placeholder="e.g., Uni-Assist, Direct"
           />
         </div>
 
         {/* Application Start Date */}
         <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-2">
+          <label className="block text-xs sm:text-sm font-semibold text-gray-700 mb-2">
             Application Start Date
           </label>
           <input
@@ -133,13 +133,13 @@ export default function ApplicationForm({ onSubmit }: ApplicationFormProps) {
             name="applicationStartDate"
             value={formData.applicationStartDate}
             onChange={handleChange}
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="w-full px-3 sm:px-4 py-2 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           />
         </div>
 
         {/* Application End Date */}
         <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-2">
+          <label className="block text-xs sm:text-sm font-semibold text-gray-700 mb-2">
             Application End Date *
           </label>
           <input
@@ -148,13 +148,13 @@ export default function ApplicationForm({ onSubmit }: ApplicationFormProps) {
             value={formData.applicationEndDate}
             onChange={handleChange}
             required
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="w-full px-3 sm:px-4 py-2 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           />
         </div>
 
         {/* Semester Fee */}
         <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-2">
+          <label className="block text-xs sm:text-sm font-semibold text-gray-700 mb-2">
             Semester Fee (€)
           </label>
           <input
@@ -162,14 +162,14 @@ export default function ApplicationForm({ onSubmit }: ApplicationFormProps) {
             name="semesterFee"
             value={formData.semesterFee}
             onChange={handleChange}
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="w-full px-3 sm:px-4 py-2 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             placeholder="e.g., 350"
           />
         </div>
 
         {/* Living Cost */}
         <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-2">
+          <label className="block text-xs sm:text-sm font-semibold text-gray-700 mb-2">
             Living Cost (€/month)
           </label>
           <input
@@ -177,14 +177,14 @@ export default function ApplicationForm({ onSubmit }: ApplicationFormProps) {
             name="livingCost"
             value={formData.livingCost}
             onChange={handleChange}
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="w-full px-3 sm:px-4 py-2 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             placeholder="e.g., 850"
           />
         </div>
 
         {/* IELTS Score */}
         <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-2">
+          <label className="block text-xs sm:text-sm font-semibold text-gray-700 mb-2">
             IELTS Score Required
           </label>
           <input
@@ -192,14 +192,14 @@ export default function ApplicationForm({ onSubmit }: ApplicationFormProps) {
             name="ieltsScore"
             value={formData.ieltsScore}
             onChange={handleChange}
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="w-full px-3 sm:px-4 py-2 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             placeholder="e.g., 6.5"
           />
         </div>
 
         {/* Application Fee */}
         <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-2">
+          <label className="block text-xs sm:text-sm font-semibold text-gray-700 mb-2">
             Application Fee (€)
           </label>
           <input
@@ -207,14 +207,14 @@ export default function ApplicationForm({ onSubmit }: ApplicationFormProps) {
             name="applicationFee"
             value={formData.applicationFee}
             onChange={handleChange}
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="w-full px-3 sm:px-4 py-2 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             placeholder="e.g., 75"
           />
         </div>
 
         {/* Documents Required */}
         <div className="md:col-span-2">
-          <label className="block text-sm font-semibold text-gray-700 mb-2">
+          <label className="block text-xs sm:text-sm font-semibold text-gray-700 mb-2">
             Documents Required
           </label>
           <textarea
@@ -222,14 +222,14 @@ export default function ApplicationForm({ onSubmit }: ApplicationFormProps) {
             value={formData.documentsRequired}
             onChange={handleChange}
             rows={4}
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="w-full px-3 sm:px-4 py-2 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             placeholder="e.g., Passport, Transcripts, CV, Motivation Letter, etc."
           />
         </div>
 
         {/* Useful Links */}
         <div className="md:col-span-2">
-          <label className="block text-sm font-semibold text-gray-700 mb-2">
+          <label className="block text-xs sm:text-sm font-semibold text-gray-700 mb-2">
             Useful Links
           </label>
           <textarea
@@ -237,16 +237,16 @@ export default function ApplicationForm({ onSubmit }: ApplicationFormProps) {
             value={formData.usefulLinks}
             onChange={handleChange}
             rows={3}
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="w-full px-3 sm:px-4 py-2 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             placeholder="Add useful links (one per line)"
           />
         </div>
       </div>
 
-      <div className="mt-8">
+      <div className="mt-6 sm:mt-8">
         <button
           type="submit"
-          className="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-6 rounded-lg transition duration-200 border-2 border-red-600"
+          className="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-2.5 sm:py-3 px-4 sm:px-6 text-sm sm:text-base rounded-lg transition duration-200 border-2 border-red-600"
         >
           Add University Application
         </button>
