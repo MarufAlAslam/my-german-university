@@ -17,7 +17,7 @@ export default function Home() {
     if (stored) {
       try {
         // eslint-disable-next-line react-hooks/set-state-in-effect
-        setApplications('' as unknown as UniversityApplication[]); // Type assertion to satisfy TypeScript
+        setApplications(JSON.parse(stored));
       } catch (error) {
         console.error('Error loading applications:', error);
       }
