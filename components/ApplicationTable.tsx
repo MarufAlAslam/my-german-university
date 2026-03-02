@@ -8,6 +8,7 @@ interface ApplicationTableProps {
   onToggleApplied: (id: string) => void;
   onUpdateStatus: (id: string, status: ApplicationStatus) => void;
   onDelete: (id: string) => void;
+  onEdit: (application: UniversityApplication) => void;
 }
 
 export default function ApplicationTable({
@@ -15,13 +16,20 @@ export default function ApplicationTable({
   onToggleApplied,
   onUpdateStatus,
   onDelete,
+  onEdit,
 }: ApplicationTableProps) {
   const [selectedApp, setSelectedApp] = useState<UniversityApplication | null>(null);
   const [deleteConfirmApp, setDeleteConfirmApp] = useState<UniversityApplication | null>(null);
-  const [sortField, setSortField] = useState<'deadline' | 'semesterFee' | 'livingCost' | null>(null);
+  const [sortField, setSortField] = useState<'deadline' | 'startDate' | 'semesterFee' | 'livingCost' | null>(null);
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
+  
+  // Filter states
+  const [filterCity, setFilterCity] = useState<string>('');
+  const [filterUniversity, setFilterUniversity] = useState<string>('');
+  const [filterApplyThrough, setFilterApplyThrough] = useState<string>('');
+  const [filterStartDate, setFilterStartDate] = useState<string>('');
 
-  const handleSort = (field: 'deadline' | 'semesterFee' | 'livingCost') => {
+  const handleSort = (field: 'deadline' | 'startDate' | 'semesterFee' | 'livingCost') => {
     if (sortField === field) {
       setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
     } else {
@@ -30,7 +38,27 @@ export default function ApplicationTable({
     }
   };
 
-  const sortedApplications = [...applications].sort((a, b) => {
+  // Get unique values for filters
+  const uniqueCities = Array.from(new Set(applications.map(app => app.city).filter(Boolean))).sort();
+  const uniqueUniversities = Array.from(new Set(applications.map(app => app.universityName).filter(Boolean))).sort();
+  const uniqueApplyThrough = Array.from(new Set(applications.map(app => app.applyThrough).filter(Boolean))).sort();
+
+  // Apply filters
+  const filteredApplications = applications.filter(app => {
+    if (filterCity && app.city !== filterCity) return false;
+    if (filterUniversity && app.universityName !== filterUniversity) return false;
+    if (filterApplyThrough && app.applyThrough !== filterApplyThrough) return false;
+    if (filterStartDate && app.applicationStartDate !== filterStartDate) return false;
+    return true;
+  });
+
+  const sortedApplications = [...filteredApplications].sort((a, b) => {
+    // First priority: Move checked/applied universities to top
+    if (a.applied !== b.applied) {
+      return a.applied ? -1 : 1;
+    }
+
+    // Second priority: Custom sorting field
     if (!sortField) return 0;
 
     let aValue: number | Date;
@@ -39,6 +67,9 @@ export default function ApplicationTable({
     if (sortField === 'deadline') {
       aValue = new Date(a.applicationEndDate || '');
       bValue = new Date(b.applicationEndDate || '');
+    } else if (sortField === 'startDate') {
+      aValue = new Date(a.applicationStartDate || '');
+      bValue = new Date(b.applicationStartDate || '');
     } else if (sortField === 'semesterFee') {
       aValue = parseFloat(a.semesterFee || '0');
       bValue = parseFloat(b.semesterFee || '0');
@@ -70,22 +101,93 @@ export default function ApplicationTable({
     return lines.length > matches.length ? lines : matches;
   };
 
-  if (applications.length === 0) {
-    return (
-      <div className="bg-yellow-400/10 rounded-xl border-2 border-yellow-400/30 p-12 text-center">
-        <p className="text-gray-700 text-lg font-semibold">
-          No universities shortlisted yet. Add your first university to get started!
-        </p>
-      </div>
-    );
-  }
-
   return (
     <div className="bg-white rounded-xl border-2 border-yellow-400/30 overflow-hidden">
+      {/* Filters Section */}
+      <div className="bg-linear-to-r from-blue-50 to-indigo-50 px-3 sm:px-4 md:px-6 py-4 border-b-2 border-blue-200">
+        <h3 className="text-sm sm:text-base font-bold text-gray-800 mb-3 flex items-center gap-2">
+          <span>🔍</span>
+          <span>Filters</span>
+        </h3>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+          <div>
+            <label className="block text-xs font-semibold text-gray-600 mb-1">City</label>
+            <select
+              value={filterCity}
+              onChange={(e) => setFilterCity(e.target.value)}
+              className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="">All Cities</option>
+              {uniqueCities.map(city => (
+                <option key={city} value={city}>{city}</option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <label className="block text-xs font-semibold text-gray-600 mb-1">University</label>
+            <select
+              value={filterUniversity}
+              onChange={(e) => setFilterUniversity(e.target.value)}
+              className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="">All Universities</option>
+              {uniqueUniversities.map(uni => (
+                <option key={uni} value={uni}>{uni}</option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <label className="block text-xs font-semibold text-gray-600 mb-1">Apply Through</label>
+            <select
+              value={filterApplyThrough}
+              onChange={(e) => setFilterApplyThrough(e.target.value)}
+              className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="">All Methods</option>
+              {uniqueApplyThrough.map(method => (
+                <option key={method} value={method}>{method}</option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <label className="block text-xs font-semibold text-gray-600 mb-1">Start Date</label>
+            <input
+              type="date"
+              value={filterStartDate}
+              onChange={(e) => setFilterStartDate(e.target.value)}
+              className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+        </div>
+        {(filterCity || filterUniversity || filterApplyThrough || filterStartDate) && (
+          <button
+            onClick={() => {
+              setFilterCity('');
+              setFilterUniversity('');
+              setFilterApplyThrough('');
+              setFilterStartDate('');
+            }}
+            className="mt-3 px-4 py-2 text-xs sm:text-sm font-semibold bg-red-500 text-white rounded-lg hover:bg-red-600 transition-all"
+          >
+            Clear All Filters
+          </button>
+        )}
+      </div>
+
       {/* Sorting Controls */}
       <div className="bg-gray-50 px-3 sm:px-4 md:px-6 py-3 sm:py-4 border-b">
         <span className="text-xs sm:text-sm font-semibold text-gray-700 block sm:inline mb-2 sm:mb-0 sm:mr-4">Sort by:</span>
         <div className="flex flex-wrap gap-2">
+          <button
+            onClick={() => handleSort('startDate')}
+            className={`px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg text-xs sm:text-sm font-semibold transition-all ${
+              sortField === 'startDate'
+                ? 'bg-red-600 text-white shadow-sm'
+                : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+            }`}
+          >
+            Start Date {sortField === 'startDate' && (sortDirection === 'asc' ? '↑' : '↓')}
+          </button>
           <button
             onClick={() => handleSort('deadline')}
             className={`px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg text-xs sm:text-sm font-semibold transition-all ${
@@ -127,6 +229,17 @@ export default function ApplicationTable({
         </div>
       </div>
       
+      {filteredApplications.length === 0 ? (
+        <div className="bg-yellow-400/10 rounded-xl border-2 border-yellow-400/30 p-12 text-center m-4">
+          <p className="text-gray-700 text-lg font-semibold">
+            {applications.length === 0 
+              ? 'No universities shortlisted yet. Add your first university to get started!'
+              : 'No universities match the selected filters.'
+            }
+          </p>
+        </div>
+      ) : (
+        <>
       <div className="overflow-x-auto">
         <table className="min-w-full divide-y divide-gray-200">
           <thead className="bg-red-600/90">
@@ -142,6 +255,9 @@ export default function ApplicationTable({
               </th>
               <th className="px-3 sm:px-4 md:px-6 py-2 sm:py-3 text-left text-xs font-bold text-white uppercase tracking-wider">
                 City
+              </th>
+              <th className="px-3 sm:px-4 md:px-6 py-2 sm:py-3 text-left text-xs font-bold text-white uppercase tracking-wider">
+                Start Date
               </th>
               <th className="px-3 sm:px-4 md:px-6 py-2 sm:py-3 text-left text-xs font-bold text-white uppercase tracking-wider">
                 Deadline
@@ -192,6 +308,13 @@ export default function ApplicationTable({
                   <div className="text-xs sm:text-sm text-gray-900">{app.city}</div>
                 </td>
 
+                {/* Start Date */}
+                <td className="px-3 sm:px-4 md:px-6 py-3 sm:py-4 whitespace-nowrap">
+                  <div className="text-xs sm:text-sm text-gray-900">
+                    {formatDate(app.applicationStartDate)}
+                  </div>
+                </td>
+
                 {/* Deadline */}
                 <td className="px-3 sm:px-4 md:px-6 py-3 sm:py-4 whitespace-nowrap">
                   <div className="text-xs sm:text-sm text-gray-900">
@@ -237,6 +360,12 @@ export default function ApplicationTable({
                     View
                   </button>
                   <button
+                    onClick={() => onEdit(app)}
+                    className="text-green-600 hover:text-green-900 font-semibold mr-2 sm:mr-3"
+                  >
+                    Edit
+                  </button>
+                  <button
                     onClick={() => setDeleteConfirmApp(app)}
                     className="text-red-600 hover:text-red-900 font-semibold"
                   >
@@ -254,34 +383,36 @@ export default function ApplicationTable({
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-0 text-xs sm:text-sm">
           <div className="flex flex-wrap gap-3 sm:gap-6">
             <span className="text-gray-900 font-bold">
-              <strong>Total:</strong> {applications.length}
+              <strong>Total:</strong> {filteredApplications.length}
             </span>
             <span className="text-yellow-700 font-bold">
-              <strong>Applied:</strong> {applications.filter(app => app.applied).length}
+              <strong>Applied:</strong> {filteredApplications.filter(app => app.applied).length}
             </span>
             <span className="text-red-700 font-bold">
-              <strong>Pending:</strong> {applications.filter(app => !app.applied).length}
+              <strong>Pending:</strong> {filteredApplications.filter(app => !app.applied).length}
             </span>
           </div>
           <div className="flex flex-wrap gap-3 sm:gap-4">
-            {applications.filter(app => app.status === 'accepted').length > 0 && (
+            {filteredApplications.filter(app => app.status === 'accepted').length > 0 && (
               <span className="text-green-800">
-                <strong>Accepted:</strong> {applications.filter(app => app.status === 'accepted').length}
+                <strong>Accepted:</strong> {filteredApplications.filter(app => app.status === 'accepted').length}
               </span>
             )}
-            {applications.filter(app => app.status === 'processing').length > 0 && (
+            {filteredApplications.filter(app => app.status === 'processing').length > 0 && (
               <span className="text-blue-800">
-                <strong>Processing:</strong> {applications.filter(app => app.status === 'processing').length}
+                <strong>Processing:</strong> {filteredApplications.filter(app => app.status === 'processing').length}
               </span>
             )}
-            {applications.filter(app => app.status === 'rejected').length > 0 && (
+            {filteredApplications.filter(app => app.status === 'rejected').length > 0 && (
               <span className="text-red-800">
-                <strong>Rejected:</strong> {applications.filter(app => app.status === 'rejected').length}
+                <strong>Rejected:</strong> {filteredApplications.filter(app => app.status === 'rejected').length}
               </span>
             )}
           </div>
         </div>
       </div>
+        </>
+      )}
 
       {/* View Details Modal */}
       {selectedApp && (

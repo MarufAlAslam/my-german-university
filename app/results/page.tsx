@@ -9,6 +9,7 @@ export default function ResultsPage() {
   const [applications, setApplications] = useState<UniversityApplication[]>([]);
   const [isLoaded, setIsLoaded] = useState(false);
   const [importData, setImportData] = useState<{ count: number; newCount: number; duplicateCount: number; data: UniversityApplication[] } | null>(null);
+  const [editingApp, setEditingApp] = useState<UniversityApplication | null>(null);
 
   // Load applications from localStorage on mount
   useEffect(() => {
@@ -51,6 +52,17 @@ export default function ResultsPage() {
 
   const handleDeleteApplication = (id: string) => {
     setApplications((prev) => prev.filter((app) => app.id !== id));
+  };
+
+  const handleEditApplication = (app: UniversityApplication) => {
+    setEditingApp(app);
+  };
+
+  const handleSaveEdit = (updatedApp: UniversityApplication) => {
+    setApplications((prev) =>
+      prev.map((app) => (app.id === updatedApp.id ? updatedApp : app))
+    );
+    setEditingApp(null);
   };
 
   // Check if an application is a duplicate based on university name, subject, and deadline
@@ -283,8 +295,238 @@ export default function ResultsPage() {
           onToggleApplied={handleToggleApplied}
           onUpdateStatus={handleUpdateStatus}
           onDelete={handleDeleteApplication}
+          onEdit={handleEditApplication}
         />
       </div>
+
+      {/* Edit Modal */}
+      {editingApp && (
+        <div
+          className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+          onClick={() => setEditingApp(null)}
+        >
+          <div
+            className="bg-white rounded-2xl border-4 border-blue-600 max-w-4xl w-full max-h-[90vh] overflow-y-auto shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Modal Header */}
+            <div className="relative bg-linear-to-br from-blue-600 to-blue-700 text-white p-4 sm:p-5 rounded-t-xl overflow-hidden">
+              <div className="absolute top-0 right-0 w-24 h-24 bg-white/10 rounded-full -mr-12 -mt-12"></div>
+              <div className="absolute bottom-0 left-0 w-16 h-16 bg-black/10 rounded-full -ml-8 -mb-8"></div>
+              <div className="relative flex justify-between items-center">
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 sm:w-10 sm:h-10 bg-white/20 rounded-full flex items-center justify-center">
+                    <span className="text-lg sm:text-xl">✏️</span>
+                  </div>
+                  <h2 className="text-lg sm:text-xl font-bold">Edit University Application</h2>
+                </div>
+                <button
+                  onClick={() => setEditingApp(null)}
+                  className="text-white hover:bg-white/20 rounded-full w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center text-xl sm:text-2xl font-bold transition-all hover:rotate-90 duration-200"
+                >
+                  ×
+                </button>
+              </div>
+            </div>
+
+            {/* Modal Body */}
+            <div className="p-4 sm:p-6">
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  handleSaveEdit(editingApp);
+                }}
+                className="space-y-4"
+              >
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {/* University Name */}
+                  <div className="md:col-span-2">
+                    <label className="block text-xs sm:text-sm font-semibold text-gray-700 mb-2">
+                      University Name *
+                    </label>
+                    <input
+                      type="text"
+                      value={editingApp.universityName}
+                      onChange={(e) => setEditingApp({ ...editingApp, universityName: e.target.value })}
+                      required
+                      className="w-full px-3 sm:px-4 py-2 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    />
+                  </div>
+
+                  {/* Subject */}
+                  <div className="md:col-span-2">
+                    <label className="block text-xs sm:text-sm font-semibold text-gray-700 mb-2">
+                      Subject/Program *
+                    </label>
+                    <input
+                      type="text"
+                      value={editingApp.subject}
+                      onChange={(e) => setEditingApp({ ...editingApp, subject: e.target.value })}
+                      required
+                      className="w-full px-3 sm:px-4 py-2 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    />
+                  </div>
+
+                  {/* City */}
+                  <div>
+                    <label className="block text-xs sm:text-sm font-semibold text-gray-700 mb-2">
+                      City/Location *
+                    </label>
+                    <input
+                      type="text"
+                      value={editingApp.city}
+                      onChange={(e) => setEditingApp({ ...editingApp, city: e.target.value })}
+                      required
+                      className="w-full px-3 sm:px-4 py-2 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    />
+                  </div>
+
+                  {/* Apply Through */}
+                  <div>
+                    <label className="block text-xs sm:text-sm font-semibold text-gray-700 mb-2">
+                      Apply Through *
+                    </label>
+                    <select
+                      value={editingApp.applyThrough}
+                      onChange={(e) => setEditingApp({ ...editingApp, applyThrough: e.target.value })}
+                      required
+                      className="w-full px-3 sm:px-4 py-2 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    >
+                      <option value="">Select option</option>
+                      <option value="Direct">Direct</option>
+                      <option value="Uni-Assist">Uni-Assist</option>
+                    </select>
+                  </div>
+
+                  {/* Application Start Date */}
+                  <div>
+                    <label className="block text-xs sm:text-sm font-semibold text-gray-700 mb-2">
+                      Application Start Date
+                    </label>
+                    <input
+                      type="date"
+                      value={editingApp.applicationStartDate}
+                      onChange={(e) => setEditingApp({ ...editingApp, applicationStartDate: e.target.value })}
+                      className="w-full px-3 sm:px-4 py-2 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    />
+                  </div>
+
+                  {/* Application End Date */}
+                  <div>
+                    <label className="block text-xs sm:text-sm font-semibold text-gray-700 mb-2">
+                      Application Deadline *
+                    </label>
+                    <input
+                      type="date"
+                      value={editingApp.applicationEndDate}
+                      onChange={(e) => setEditingApp({ ...editingApp, applicationEndDate: e.target.value })}
+                      required
+                      className="w-full px-3 sm:px-4 py-2 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    />
+                  </div>
+
+                  {/* Semester Fee */}
+                  <div>
+                    <label className="block text-xs sm:text-sm font-semibold text-gray-700 mb-2">
+                      Semester Fee (€)
+                    </label>
+                    <input
+                      type="number"
+                      value={editingApp.semesterFee}
+                      onChange={(e) => setEditingApp({ ...editingApp, semesterFee: e.target.value })}
+                      className="w-full px-3 sm:px-4 py-2 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    />
+                  </div>
+
+                  {/* Living Cost */}
+                  <div>
+                    <label className="block text-xs sm:text-sm font-semibold text-gray-700 mb-2">
+                      Living Cost (€/month)
+                    </label>
+                    <input
+                      type="number"
+                      value={editingApp.livingCost}
+                      onChange={(e) => setEditingApp({ ...editingApp, livingCost: e.target.value })}
+                      className="w-full px-3 sm:px-4 py-2 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    />
+                  </div>
+
+                  {/* Application Fee */}
+                  <div>
+                    <label className="block text-xs sm:text-sm font-semibold text-gray-700 mb-2">
+                      Application Fee (€)
+                    </label>
+                    <input
+                      type="number"
+                      value={editingApp.applicationFee}
+                      onChange={(e) => setEditingApp({ ...editingApp, applicationFee: e.target.value })}
+                      className="w-full px-3 sm:px-4 py-2 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    />
+                  </div>
+
+                  {/* IELTS Score */}
+                  <div>
+                    <label className="block text-xs sm:text-sm font-semibold text-gray-700 mb-2">
+                      IELTS Requirement
+                    </label>
+                    <input
+                      type="text"
+                      value={editingApp.ieltsScore}
+                      onChange={(e) => setEditingApp({ ...editingApp, ieltsScore: e.target.value })}
+                      className="w-full px-3 sm:px-4 py-2 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    />
+                  </div>
+
+                  {/* Documents Required */}
+                  <div className="md:col-span-2">
+                    <label className="block text-xs sm:text-sm font-semibold text-gray-700 mb-2">
+                      Required Documents
+                    </label>
+                    <textarea
+                      value={editingApp.documentsRequired}
+                      onChange={(e) => setEditingApp({ ...editingApp, documentsRequired: e.target.value })}
+                      rows={3}
+                      className="w-full px-3 sm:px-4 py-2 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      placeholder="List required documents, one per line"
+                    />
+                  </div>
+
+                  {/* Useful Links */}
+                  <div className="md:col-span-2">
+                    <label className="block text-xs sm:text-sm font-semibold text-gray-700 mb-2">
+                      Useful Links
+                    </label>
+                    <textarea
+                      value={editingApp.usefulLinks}
+                      onChange={(e) => setEditingApp({ ...editingApp, usefulLinks: e.target.value })}
+                      rows={2}
+                      className="w-full px-3 sm:px-4 py-2 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      placeholder="Enter URLs, one per line"
+                    />
+                  </div>
+                </div>
+
+                {/* Modal Footer */}
+                <div className="flex gap-3 pt-4 border-t">
+                  <button
+                    type="button"
+                    onClick={() => setEditingApp(null)}
+                    className="flex-1 px-4 sm:px-6 py-2.5 sm:py-3 text-sm sm:text-base bg-white text-gray-700 font-semibold rounded-xl hover:bg-gray-100 transition-all duration-200 border-2 border-gray-300 shadow-sm hover:shadow-md"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    className="flex-1 px-4 sm:px-6 py-2.5 sm:py-3 text-sm sm:text-base bg-linear-to-br from-blue-600 to-blue-700 text-white font-bold rounded-xl hover:from-blue-700 hover:to-blue-800 transition-all duration-200 shadow-lg shadow-blue-600/30 hover:shadow-xl hover:shadow-blue-600/40"
+                  >
+                    Save Changes
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Import Confirmation Modal */}
       {importData && (
