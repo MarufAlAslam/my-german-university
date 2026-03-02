@@ -212,6 +212,8 @@ export default function ApplicationTable({
                           ? 'bg-red-100 text-red-800 border-red-300'
                           : app.status === 'processing'
                           ? 'bg-blue-100 text-blue-800 border-blue-300'
+                          : app.status === 'applied for VPD'
+                          ? 'bg-purple-100 text-purple-800 border-purple-300'
                           : 'bg-gray-100 text-gray-600 border-gray-300'
                       }`}
                     >
@@ -219,6 +221,7 @@ export default function ApplicationTable({
                       <option value="processing">⏳ Processing</option>
                       <option value="accepted">✓ Accepted</option>
                       <option value="rejected">✗ Rejected</option>
+                      <option value="applied for VPD">📋 Applied for VPD</option>
                     </select>
                   ) : (
                     <span className="text-xs sm:text-sm text-gray-400">-</span>
@@ -438,11 +441,14 @@ export default function ApplicationTable({
                           ? 'bg-red-100 text-red-800 border-2 border-red-300'
                           : selectedApp.status === 'processing'
                           ? 'bg-blue-100 text-blue-800 border-2 border-blue-300'
+                          : selectedApp.status === 'applied for VPD'
+                          ? 'bg-purple-100 text-purple-800 border-2 border-purple-300'
                           : ''
                       }`}>
                         {selectedApp.status === 'accepted' ? '✓ Accepted' : 
                          selectedApp.status === 'rejected' ? '✗ Rejected' : 
-                         selectedApp.status === 'processing' ? '⏳ Processing' : ''}
+                         selectedApp.status === 'processing' ? '⏳ Processing' : 
+                         selectedApp.status === 'applied for VPD' ? '📋 Applied for VPD' : ''}
                       </span>
                     )}
                   </div>

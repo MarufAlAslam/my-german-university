@@ -1,4 +1,4 @@
-export type ApplicationStatus = 'processing' | 'accepted' | 'rejected' | '';
+export type ApplicationStatus = 'processing' | 'accepted' | 'rejected' | 'applied for VPD' | '';
 
 export interface UniversityApplication {
   id: string;
