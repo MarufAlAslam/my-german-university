@@ -38,6 +38,26 @@ export default function ApplicationTable({
     }
   };
 
+  // Get row background color based on status
+  const getRowColor = (app: UniversityApplication) => {
+    if (!app.applied) return 'hover:bg-gray-50';
+    
+    switch (app.status) {
+      case 'accepted':
+        return 'bg-green-50/80 hover:bg-green-100/80 border-l-4 border-green-500';
+      case 'rejected':
+        return 'bg-red-50/80 hover:bg-red-100/80 border-l-4 border-red-500';
+      case 'processing':
+        return 'bg-blue-50/80 hover:bg-blue-100/80 border-l-4 border-blue-500';
+      case 'applied for VPD':
+        return 'bg-purple-50/80 hover:bg-purple-100/80 border-l-4 border-purple-500';
+      case 'vpd received':
+        return 'bg-indigo-50/80 hover:bg-indigo-100/80 border-l-4 border-indigo-500';
+      default:
+        return 'bg-yellow-400/20 hover:bg-yellow-400/30 border-l-4 border-yellow-400';
+    }
+  };
+
   // Get unique values for filters
   const uniqueCities = Array.from(new Set(applications.map(app => app.city).filter(Boolean))).sort();
   const uniqueUniversities = Array.from(new Set(applications.map(app => app.universityName).filter(Boolean))).sort();
@@ -274,9 +294,7 @@ export default function ApplicationTable({
             {sortedApplications.map((app) => (
               <tr
                 key={app.id}
-                className={`transition duration-150 ${
-                  app.applied ? 'bg-yellow-400/20 hover:bg-yellow-400/30 border-l-4 border-yellow-400' : 'hover:bg-gray-50'
-                }`}
+                className={`transition duration-150 ${getRowColor(app)}`}
               >
                 {/* Applied Checkbox */}
                 <td className="px-3 sm:px-4 md:px-6 py-3 sm:py-4 whitespace-nowrap">
@@ -337,6 +355,8 @@ export default function ApplicationTable({
                           ? 'bg-blue-100 text-blue-800 border-blue-300'
                           : app.status === 'applied for VPD'
                           ? 'bg-purple-100 text-purple-800 border-purple-300'
+                          : app.status === 'vpd received'
+                          ? 'bg-indigo-100 text-indigo-800 border-indigo-300'
                           : 'bg-gray-100 text-gray-600 border-gray-300'
                       }`}
                     >
@@ -345,6 +365,7 @@ export default function ApplicationTable({
                       <option value="accepted">✓ Accepted</option>
                       <option value="rejected">✗ Rejected</option>
                       <option value="applied for VPD">📋 Applied for VPD</option>
+                      <option value="vpd received">📬 VPD Received</option>
                     </select>
                   ) : (
                     <span className="text-xs sm:text-sm text-gray-400">-</span>

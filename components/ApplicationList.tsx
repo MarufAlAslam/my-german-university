@@ -58,6 +58,8 @@ export default function ApplicationList({
         return 'bg-blue-100 text-blue-800 border-blue-300';
       case 'applied for VPD':
         return 'bg-purple-100 text-purple-800 border-purple-300';
+      case 'vpd received':
+        return 'bg-indigo-100 text-indigo-800 border-indigo-300';
       default:
         return 'bg-gray-100 text-gray-800 border-gray-300';
     }
@@ -104,6 +106,7 @@ export default function ApplicationList({
                     <option value="accepted">✓ Accepted</option>
                     <option value="rejected">✗ Rejected</option>
                     <option value="applied for VPD">📋 Applied for VPD</option>
+                    <option value="vpd received">📬 VPD Received</option>
                   </select>
                 </div>
               )}
